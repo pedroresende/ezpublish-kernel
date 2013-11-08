@@ -1658,4 +1658,5 @@ class RoleServiceTest extends BaseTest
 
         return $userGroup;
     }
+
 }
