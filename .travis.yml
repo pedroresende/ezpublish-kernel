@@ -13,11 +13,11 @@ env:
     - DB_NAME="testdb"
   matrix:
     - TEST_CONFIG="phpunit.xml" TIMEZONE="Asia/Calcutta"
-    - TEST_CONFIG="phpunit.xml" TIMEZONE="America/New_York"
+    - TEST_CONFIG="phpunit.xml" TIMEZONE="America/New_York" COVERAGE_FILE="none"
     - TEST_CONFIG="phpunit.xml" TIMEZONE="America/New_York" COVERAGE_FILE="build/logs/clover-phpunit.xml"
     - TEST_CONFIG="phpunit-integration-legacy.xml" TIMEZONE="Europe/Oslo"
     - TEST_CONFIG="phpunit-integration-legacy.xml" DB="postgresql" DATABASE="pgsql://postgres@localhost/$DB_NAME" TIMEZONE="Asia/Calcutta"
-    - TEST_CONFIG="phpunit-integration-legacy.xml" DB="mysql" DATABASE="mysql://root@localhost/$DB_NAME" TIMEZONE="America/New_York"
+    - TEST_CONFIG="phpunit-integration-legacy.xml" DB="mysql" DATABASE="mysql://root@localhost/$DB_NAME" TIMEZONE="America/New_York" COVERAGE_FILE="none"
     - TEST_CONFIG="phpunit-integration-legacy.xml" DB="mysql" DATABASE="mysql://root@localhost/$DB_NAME" TIMEZONE="America/New_York" COVERAGE_FILE="build/logs/clover-phpunit-integration-legacy.xml"
     - TEST_CONFIG="phpunit-integration-legacy-solr.xml" TIMEZONE="America/New_York"
 
@@ -25,9 +25,9 @@ matrix:
   allow_failures:
     - php: 5.3.3
       env: TEST_CONFIG="phpunit.xml" TIMEZONE="Asia/Calcutta"
-    - php: 5.4
+    - php: 5.5
       env: TEST_CONFIG="phpunit.xml" TIMEZONE="America/New_York" COVERAGE_FILE="build/logs/clover-phpunit.xml"
-    - php: 5.4
+    - php: 5.5
       env: TEST_CONFIG="phpunit-integration-legacy.xml" DB="mysql" DATABASE="mysql://root@localhost/$DB_NAME" TIMEZONE="America/New_York" COVERAGE_FILE="build/logs/clover-phpunit-integration-legacy.xml"
   exclude:
     - php: 5.3.3
@@ -64,12 +64,16 @@ matrix:
       env: TEST_CONFIG="phpunit.xml" TIMEZONE="America/New_York" COVERAGE_FILE="build/logs/clover-phpunit.xml"
     - php: 5.4
       env: TEST_CONFIG="phpunit.xml" TIMEZONE="America/New_York" COVERAGE_FILE="build/logs/clover-phpunit.xml"
+    - php: 5.5
+      env: TEST_CONFIG="phpunit.xml" TIMEZONE="America/New_York" COVERAGE_FILE="none"
     - php: 5.3
       env: TEST_CONFIG="phpunit-integration-legacy.xml" DB="mysql" DATABASE="mysql://root@localhost/$DB_NAME" TIMEZONE="America/New_York" COVERAGE_FILE="build/logs/clover-phpunit-integration-legacy.xml"
     - php: 5.3.3
       env: TEST_CONFIG="phpunit-integration-legacy.xml" DB="mysql" DATABASE="mysql://root@localhost/$DB_NAME" TIMEZONE="America/New_York" COVERAGE_FILE="build/logs/clover-phpunit-integration-legacy.xml"
     - php: 5.4
       env: TEST_CONFIG="phpunit-integration-legacy.xml" DB="mysql" DATABASE="mysql://root@localhost/$DB_NAME" TIMEZONE="America/New_York" COVERAGE_FILE="build/logs/clover-phpunit-integration-legacy.xml"
+    - php: 5.5
+      env: TEST_CONFIG="phpunit-integration-legacy.xml" DB="mysql" DATABASE="mysql://root@localhost/$DB_NAME" TIMEZONE="America/New_York" COVERAGE_FILE="none"
 
 # test only master (+ Pull requests)
 branches:
