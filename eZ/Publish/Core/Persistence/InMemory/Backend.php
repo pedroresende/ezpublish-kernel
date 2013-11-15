@@ -122,12 +122,6 @@ class Backend
                 throw new LogicException( "'create' logic error, provided id already exist" );
         }
 
-        /*foreach ( $data as $prop => $value )
-        {
-            if ( $value === null )
-                throw new InvalidArgumentValue( 'data', "'$prop' on '$type' was of value NULL" );
-        }*/
-
         $this->data[$type][] = $data;
         return $this->toValue( $type, $data );
     }
@@ -241,12 +235,6 @@ class Backend
 
         // Make sure id isn't changed
         unset( $data[$idColumn] );
-
-        /*foreach ( $data as $prop => $value )
-        {
-            if ( $value === null )
-                throw new InvalidArgumentValue( 'data', "'$prop' on '$type' was of value NULL" );
-        }*/
 
         $return = false;
         foreach ( $this->data[$type] as $key => $item )

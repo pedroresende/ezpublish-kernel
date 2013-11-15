@@ -530,6 +530,7 @@ class Handler implements HandlerInterface
                                 new CriterionHandler\Visibility( $db ),
                                 new CriterionHandler\UserMetadata( $db ),
                                 new CriterionHandler\RelationList( $db ),
+                                new CriterionHandler\Depth( $db ),
                             )
                         ),
                         new Content\Search\Gateway\SortClauseConverter(
@@ -543,7 +544,7 @@ class Handler implements HandlerInterface
                                 new SortClauseHandler\SectionName( $db ),
                                 new SortClauseHandler\ContentName( $db ),
                                 new SortClauseHandler\ContentId( $db ),
-                                new SortClauseHandler\Field( $db ),
+                                new SortClauseHandler\Field( $db, $this->contentLanguageHandler() ),
                             )
                         ),
                         new Content\Gateway\EzcDatabase\QueryBuilder( $this->dbHandler ),

@@ -13,9 +13,6 @@ namespace eZ\Publish\Core\Repository;
 use eZ\Publish\API\Repository\ContentService as ContentServiceInterface;
 use eZ\Publish\API\Repository\Repository as RepositoryInterface;
 use eZ\Publish\SPI\Persistence\Handler;
-use eZ\Publish\Core\Repository\DomainMapper;
-use eZ\Publish\Core\Repository\RelationProcessor;
-use eZ\Publish\Core\Repository\NameSchemaService;
 use eZ\Publish\API\Repository\Values\Content\ContentUpdateStruct as APIContentUpdateStruct;
 use eZ\Publish\API\Repository\Values\ContentType\ContentType;
 use eZ\Publish\API\Repository\Values\Content\TranslationInfo;
@@ -36,7 +33,6 @@ use eZ\Publish\Core\Base\Exceptions\InvalidArgumentException;
 use eZ\Publish\Core\Base\Exceptions\ContentValidationException;
 use eZ\Publish\Core\Base\Exceptions\ContentFieldValidationException;
 use eZ\Publish\Core\Base\Exceptions\UnauthorizedException;
-use eZ\Publish\Core\Repository\Values\Content\Content;
 use eZ\Publish\Core\Repository\Values\Content\VersionInfo;
 use eZ\Publish\Core\Repository\Values\Content\ContentCreateStruct;
 use eZ\Publish\Core\Repository\Values\Content\ContentUpdateStruct;
@@ -1728,17 +1724,15 @@ class ContentService implements ContentServiceInterface
         $relations = array();
         foreach ( $spiRelations as $spiRelation )
         {
-            // @todo Should relations really be loaded w/o checking permissions just because User needs to be accessible??
+            $destinationContentInfo = $this->internalLoadContentInfo( $spiRelation->destinationContentId );
+            if ( !$this->repository->canUser( 'content', 'read', $destinationContentInfo ) )
+                continue;
+
             $relations[] = $this->domainMapper->buildRelationDomainObject(
                 $spiRelation,
                 $contentInfo,
-                $this->internalLoadContentInfo( $spiRelation->destinationContentId )
+                $destinationContentInfo
             );
-        }
-        foreach ( $relations as $relation )
-        {
-            if ( !$this->repository->canUser( 'content', 'read', $relation->getDestinationContentInfo() ) )
-                throw new UnauthorizedException( 'content', 'read' );
         }
 
         return $relations;
@@ -1767,16 +1761,15 @@ class ContentService implements ContentServiceInterface
         $returnArray = array();
         foreach ( $spiRelations as $spiRelation )
         {
-            // @todo Should relations really be loaded w/o checking permissions just because User needs to be accessible??
-            $relation = $this->domainMapper->buildRelationDomainObject(
+            $sourceContentInfo = $this->internalLoadContentInfo( $spiRelation->sourceContentId );
+            if ( !$this->repository->canUser( 'content', 'read', $sourceContentInfo ) )
+                continue;
+
+            $returnArray[] = $this->domainMapper->buildRelationDomainObject(
                 $spiRelation,
-                $this->internalLoadContentInfo( $spiRelation->sourceContentId ),
+                $sourceContentInfo,
                 $contentInfo
             );
-            if ( !$this->repository->canUser( 'content', 'read', $relation->getSourceContentInfo() ) )
-                throw new UnauthorizedException( 'content', 'read' );
-
-            $returnArray[] = $relation;
         }
 
         return $returnArray;
