@@ -24,7 +24,6 @@ if ( ( $vendorPathPos = strrpos( $rootDir, '/vendor/ezsystems/ezpublish' ) ) !==
     $rootDir = substr( $rootDir, 0, $vendorPathPos );
 require_once $rootDir . "/vendor/autoload.php";
 
-
 // Bootstrap eZ Publish legacy kernel if configured
 if ( !empty( $settings['service']['parameters']['legacy_dir'] ) )
 {
@@ -58,6 +57,7 @@ if ( !empty( $settings['service']['parameters']['legacy_dir'] ) )
     // Exposing in env variables in order be able to use them in test cases.
     $_ENV['legacyKernel'] = $legacyKernel;
     $_ENV['legacyPath'] = $settings['service']['parameters']['legacy_dir'];
+    $_ENV['imagemagickConvertPath'] = $settings['service']['parameters']['imagemagick_convert_path'];
 }
 
 return include 'container.php';

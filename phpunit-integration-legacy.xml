@@ -55,6 +55,7 @@
             <directory suffix=".php">eZ/Publish/Core/Repository/</directory>
             <directory suffix=".php">eZ/Publish/Core/FieldType/</directory>
             <directory suffix=".php">eZ/Publish/Core/Persistence/Legacy/</directory>
+            <directory suffix=".php">eZ/Publish/API/Repository</directory>
             <exclude>
                 <directory>eZ/Publish/API/Repository/Tests</directory>
                 <directory>eZ/Publish/API/Repository/Tutorials</directory>
