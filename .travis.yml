@@ -2,10 +2,10 @@ language: php
 
 # run tests on php misc php versions
 php:
+  - 5.5
   - 5.3.3
   - 5.3
   - 5.4
-  - 5.5
 
 # execute unit tests, integration test stubs and integration tests using legacy storage engine
 env:
@@ -13,13 +13,13 @@ env:
     - DB_NAME="testdb"
     - COVERAGE_FILE="none"
   matrix:
+    - TEST_CONFIG="phpunit.xml" TIMEZONE="America/New_York" COVERAGE_FILE="build/logs/clover-phpunit.xml"
+    - TEST_CONFIG="phpunit-integration-legacy.xml" DB="mysql" DATABASE="mysql://root@localhost/$DB_NAME" TIMEZONE="America/New_York" COVERAGE_FILE="build/logs/clover-phpunit-integration-legacy.xml"
     - TEST_CONFIG="phpunit.xml" TIMEZONE="Asia/Calcutta"
     - TEST_CONFIG="phpunit.xml" TIMEZONE="America/New_York"
-    - TEST_CONFIG="phpunit.xml" TIMEZONE="America/New_York" COVERAGE_FILE="build/logs/clover-phpunit.xml"
     - TEST_CONFIG="phpunit-integration-legacy.xml" TIMEZONE="Europe/Oslo"
     - TEST_CONFIG="phpunit-integration-legacy.xml" DB="postgresql" DATABASE="pgsql://postgres@localhost/$DB_NAME" TIMEZONE="Asia/Calcutta"
     - TEST_CONFIG="phpunit-integration-legacy.xml" DB="mysql" DATABASE="mysql://root@localhost/$DB_NAME" TIMEZONE="America/New_York"
-    - TEST_CONFIG="phpunit-integration-legacy.xml" DB="mysql" DATABASE="mysql://root@localhost/$DB_NAME" TIMEZONE="America/New_York" COVERAGE_FILE="build/logs/clover-phpunit-integration-legacy.xml"
     - TEST_CONFIG="phpunit-integration-legacy-solr.xml" TIMEZONE="America/New_York"
 
 matrix:
