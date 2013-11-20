@@ -49,22 +49,25 @@
             <directory>eZ/Publish/API/Repository/Tests/Regression/</directory>
         </testsuite>
     </testsuites>
-    <whitelist>
-        <directory suffix=".php">eZ</directory>
-        <exclude>
-            <directory>eZ/Publish/*/Tests</directory>
-            <directory>eZ/Publish/*/*/Tests</directory>
-            <directory>eZ/Publish/*/*/*/Tests</directory>
-            <directory>eZ/Publish/*/*/*/*/Tests</directory>
-            <directory>eZ/Bundle/*/Tests</directory>
-            <directory>eZ/Bundle/*/_fixtures</directory>
-            <directory>eZ/Publish/Core/Persistence/Legacy/docs</directory>
-            <directory>doc</directory>
-            <directory>design</directory>
-            <directory>vendor</directory>
-            <directory>eZ/Publish/API/Repository/Examples</directory>
-            <directory>eZ/Publish/API/Repository/Tutorials</directory>
-        </exclude>
-    </whitelist>
+    <filter>
+        <whitelist>
+            <directory suffix=".php">eZ/Publish/Core</directory>
+            <directory suffix=".php">eZ/Publish/API</directory>
+            <directory suffix=".php">eZ/Publish/SPI</directory>
+            <exclude>
+                <directory>eZ/Publish/*/Tests</directory>
+                <directory>eZ/Publish/*/*/Tests</directory>
+                <directory>eZ/Publish/*/*/*/Tests</directory>
+                <directory>eZ/Publish/*/*/*/*/Tests</directory>
+                <directory>eZ/Bundle/*/Tests</directory>
+                <directory>eZ/Bundle/*/_fixtures</directory>
+                <directory>eZ/Publish/Core/Persistence/Legacy/docs</directory>
+                <directory>doc</directory>
+                <directory>design</directory>
+                <directory>vendor</directory>
+                <directory>eZ/Publish/API/Repository/Examples</directory>
+            </exclude>
+        </whitelist>
+    </filter>
 </phpunit>
 
