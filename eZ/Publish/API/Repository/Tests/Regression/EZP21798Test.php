@@ -78,7 +78,7 @@ class EZP21798Test extends BaseTest
         $newsLocation = $urlAliasService->lookup( '/News' );
         $locationNews = $locationService->loadLocation( $newsLocation->destination );
 
-        $locationCreateStructArticle = $locationService->newLocationCreateStruct( $locationNews->destination );
+        $locationCreateStructArticle = $locationService->newLocationCreateStruct( $locationNews->id );
         $draftArticle = $contentService->createContent( $contentCreateStructArticle, array( $locationCreateStructArticle ) );
         $contentArticle = $contentService->publishVersion( $draftArticle->versionInfo );
 
