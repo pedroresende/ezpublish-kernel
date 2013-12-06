@@ -91,7 +91,7 @@ class Factory
     }
 
     /**
-     * @return \eZ\Publish\SPI\Persistence\Content\Location\Handler
+     * @return \eZ\Publish\SPI\Persistence\Content\Location\Search\Handler
      */
     public function getLocationSearchHandler()
     {
