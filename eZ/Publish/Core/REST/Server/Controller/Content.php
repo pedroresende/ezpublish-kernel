@@ -21,6 +21,7 @@ use eZ\Publish\API\Repository\Exceptions\ContentFieldValidationException;
 use eZ\Publish\API\Repository\Exceptions\ContentValidationException;
 use eZ\Publish\Core\REST\Server\Exceptions\ForbiddenException;
 use eZ\Publish\Core\REST\Server\Exceptions\BadRequestException;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Content controller
@@ -59,9 +60,11 @@ class Content extends RestController
      * Loads a content info, potentially with the current version embedded
      *
      * @param mixed $contentId
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     *
      * @return \eZ\Publish\Core\REST\Server\Values\RestContent
      */
-    public function loadContent( $contentId )
+    public function loadContent( $contentId, Request $request )
     {
         $contentInfo = $this->repository->getContentService()->loadContentInfo( $contentId );
         $mainLocation = $this->repository->getLocationService()->loadLocation( $contentInfo->mainLocationId );
@@ -81,13 +84,24 @@ class Content extends RestController
             $relations = $this->repository->getContentService()->loadRelations( $contentVersion->getVersionInfo() );
         }
 
-        return new Values\RestContent(
+        $restContent = new Values\RestContent(
             $contentInfo,
             $mainLocation,
             $contentVersion,
             $contentType,
             $relations,
             $this->request->getPathInfo()
+        );
+
+        if ( $contentInfo->mainLocationId === null )
+        {
+            return $restContent;
+        }
+
+        return new Values\LocationCachedValue(
+            $contentInfo->mainLocationId,
+            $restContent,
+            $request->headers->has( 'X-User-Hash' ) ? $request->headers->get( 'X-User-Hash' ) : null
         );
     }
 
@@ -172,9 +186,11 @@ class Content extends RestController
      *
      * @param mixed $contentId
      * @param int $versionNumber
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     *
      * @return \eZ\Publish\Core\REST\Server\Values\Version
      */
-    public function loadContentInVersion( $contentId, $versionNumber )
+    public function loadContentInVersion( $contentId, $versionNumber, Request $request )
     {
         $languages = null;
         if ( $this->request->query->has( 'languages' ) )
@@ -191,11 +207,22 @@ class Content extends RestController
             $content->getVersionInfo()->getContentInfo()->contentTypeId
         );
 
-        return new Values\Version(
+        $versionValue = new Values\Version(
             $content,
             $contentType,
             $this->repository->getContentService()->loadRelations( $content->getVersionInfo() ),
             $this->request->getPathInfo()
+        );
+
+        if ( $content->contentInfo->mainLocationId === null )
+        {
+            return $versionValue;
+        }
+
+        return new Values\LocationCachedValue(
+            $content->contentInfo->mainLocationId,
+            $versionValue,
+            $request->headers->has( 'X-User-Hash' ) ? $request->headers->get( 'X-User-Hash' ) : null
         );
     }
 
@@ -279,7 +306,7 @@ class Content extends RestController
     /**
      * Creates a new content object as copy under the given parent location given in the destination header.
      *
-     * @param $contentId
+     * @param mixed $contentId
      *
      * @return \eZ\Publish\Core\REST\Server\Values\ResourceCreated
      */
@@ -306,15 +333,28 @@ class Content extends RestController
      * include fields and relations in the Version elements of the response.
      *
      * @param mixed $contentId
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     *
      * @return \eZ\Publish\Core\REST\Server\Values\VersionList
      */
-    public function loadContentVersions( $contentId )
+    public function loadContentVersions( $contentId, Request $request )
     {
-        return new Values\VersionList(
-            $this->repository->getContentService()->loadVersions(
-                $this->repository->getContentService()->loadContentInfo( $contentId )
-            ),
+        $contentInfo = $this->repository->getContentService()->loadContentInfo( $contentId );
+
+        $versionList = new Values\VersionList(
+            $this->repository->getContentService()->loadVersions( $contentInfo ),
             $this->request->getPathInfo()
+        );
+
+        if ( $contentInfo->mainLocationId === null )
+        {
+            return $versionList;
+        }
+
+        return new Values\LocationCachedValue(
+            $contentInfo->mainLocationId,
+            $versionList,
+            $request->headers->has( 'X-User-Hash' ) ? $request->headers->get( 'X-User-Hash' ) : null
         );
     }
 
@@ -538,19 +578,18 @@ class Content extends RestController
      *
      * @param mixed $contentId
      * @param mixed $versionNumber
+     * @param \Symfony\Component\HttpFoundation\Request $request
      *
      * @return \eZ\Publish\Core\REST\Server\Values\RelationList
      */
-    public function loadVersionRelations( $contentId, $versionNumber )
+    public function loadVersionRelations( $contentId, $versionNumber, Request $request )
     {
         $offset = $this->request->query->has( 'offset' ) ? (int)$this->request->query->get( 'offset' ) : 0;
         $limit = $this->request->query->has( 'limit' ) ? (int)$this->request->query->get( 'limit' ) : -1;
 
+        $contentInfo = $this->repository->getContentService()->loadContentInfo( $contentId );
         $relationList = $this->repository->getContentService()->loadRelations(
-            $this->repository->getContentService()->loadVersionInfo(
-                $this->repository->getContentService()->loadContentInfo( $contentId ),
-                $versionNumber
-            )
+            $this->repository->getContentService()->loadVersionInfo( $contentInfo, $versionNumber )
         );
 
         $relationList = array_slice(
@@ -559,11 +598,22 @@ class Content extends RestController
             $limit >= 0 ? $limit : null
         );
 
-        return new Values\RelationList(
+        $relationListValue = new Values\RelationList(
             $relationList,
             $contentId,
             $versionNumber,
             $this->request->getPathInfo()
+        );
+
+        if ( $contentInfo->mainLocationId === null )
+        {
+            return $relationListValue;
+        }
+
+        return new Values\LocationCachedValue(
+            $contentInfo->mainLocationId,
+            $relationListValue,
+            $request->headers->has( 'X-User-Hash' ) ? $request->headers->get( 'X-User-Hash' ) : null
         );
     }
 
@@ -571,26 +621,36 @@ class Content extends RestController
      * Loads a relation for the given content object and version
      *
      * @param mixed $contentId
-     * @param int   $versionNumber
+     * @param int $versionNumber
      * @param mixed $relationId
+     * @param \Symfony\Component\HttpFoundation\Request $request
      *
      * @throws \eZ\Publish\Core\REST\Common\Exceptions\NotFoundException
      * @return \eZ\Publish\Core\REST\Server\Values\RestRelation
      */
-    public function loadVersionRelation( $contentId, $versionNumber, $relationId )
+    public function loadVersionRelation( $contentId, $versionNumber, $relationId, Request $request )
     {
+        $contentInfo = $this->repository->getContentService()->loadContentInfo( $contentId );
         $relationList = $this->repository->getContentService()->loadRelations(
-            $this->repository->getContentService()->loadVersionInfo(
-                $this->repository->getContentService()->loadContentInfo( $contentId ),
-                $versionNumber
-            )
+            $this->repository->getContentService()->loadVersionInfo( $contentInfo, $versionNumber )
         );
 
         foreach ( $relationList as $relation )
         {
             if ( $relation->id == $relationId )
             {
-                return new Values\RestRelation( $relation, $contentId, $versionNumber );
+                $relation = new Values\RestRelation( $relation, $contentId, $versionNumber );
+
+                if ( $contentInfo->mainLocationId === null )
+                {
+                    return $relation;
+                }
+
+                return new Values\LocationCachedValue(
+                    $contentInfo->mainLocationId,
+                    new Values\LocationList( $relation, $this->request->getPathInfo() ),
+                    $request->headers->has( 'X-User-Hash' ) ? $request->headers->get( 'X-User-Hash' ) : null
+                );
             }
         }
 

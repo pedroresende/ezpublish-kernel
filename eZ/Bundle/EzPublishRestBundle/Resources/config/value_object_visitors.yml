@@ -113,6 +113,10 @@ parameters:
     ezpublish_rest.output.value_object_visitor.TemporaryRedirect.class: eZ\Publish\Core\REST\Server\Output\ValueObjectVisitor\TemporaryRedirect
     ezpublish_rest.output.value_object_visitor.Options.class: eZ\Publish\Core\REST\Server\Output\ValueObjectVisitor\Options
 
+    # Cache
+    ezpublish_rest.output.value_object_visitor.cached_value.class: eZ\Publish\Core\REST\Server\Output\ValueObjectVisitor\CachedValue
+    ezpublish_rest.output.value_object_visitor.location_cached_value.class: eZ\Publish\Core\REST\Server\Output\ValueObjectVisitor\LocationCachedValue
+
 services:
     ezpublish_rest.output.value_object_visitor.base:
         class: %ezpublish_rest.output.value_object_visitor.base.class%
@@ -617,3 +621,20 @@ services:
         arguments: [ true  ]
         tags:
             - { name: ezpublish_rest.output.value_object_visitor, type: eZ\Publish\Core\REST\Server\Values\Options }
+
+    ezpublish_rest.output.value_object_visitor.cached_value:
+        class: %ezpublish_rest.output.value_object_visitor.cached_value.class%
+        parent: ezpublish_rest.output.value_object_visitor.base
+        arguments:
+            - { content.view_cache: true, content.ttl_cache: true, content.default_ttl: 60 }
+        tags:
+            - { name: ezpublish_rest.output.value_object_visitor, type: eZ\Publish\Core\REST\Server\Values\CachedValue }
+
+    ezpublish_rest.output.value_object_visitor.location_cached_value:
+        class: %ezpublish_rest.output.value_object_visitor.location_cached_value.class%
+        parent: ezpublish_rest.output.value_object_visitor.base
+        arguments:
+            - { content.view_cache: true, content.ttl_cache: true, content.default_ttl: 60 }
+        tags:
+            - { name: ezpublish_rest.output.value_object_visitor, type: eZ\Publish\Core\REST\Server\Values\LocationCachedValue }
+

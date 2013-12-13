@@ -21,6 +21,7 @@ use eZ\Publish\API\Repository\TrashService;
 use eZ\Publish\API\Repository\Exceptions\InvalidArgumentException;
 use eZ\Publish\Core\REST\Server\Exceptions\BadRequestException;
 use eZ\Publish\Core\REST\Server\Exceptions\ForbiddenException;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Location controller
@@ -97,7 +98,7 @@ class Location extends RestController
     /**
      * Creates a new location for object with id $contentId
      *
-     * @param $contentId
+     * @param mixed $contentId
      *
      * @throws \eZ\Publish\Core\REST\Server\Exceptions\ForbiddenException
      * @return \eZ\Publish\Core\REST\Server\Values\CreatedLocation
@@ -128,24 +129,32 @@ class Location extends RestController
     /**
      * Loads a location
      *
-     * @param $locationPath
+     * @param string $locationPath
+     * @param \Symfony\Component\HttpFoundation\Request $request
      *
      * @return \eZ\Publish\Core\REST\Server\Values\RestLocation
      */
-    public function loadLocation( $locationPath )
+    public function loadLocation( $locationPath, Request $request )
     {
-        return new Values\RestLocation(
-            $location = $this->locationService->loadLocation(
-                $this->extractLocationIdFromPath( $locationPath )
+        $locationId = $this->extractLocationIdFromPath( $locationPath );
+        $location = $this->locationService->loadLocation(
+            $locationId
+        );
+
+        return new Values\LocationCachedValue(
+            $locationId,
+            new Values\RestLocation(
+                $location,
+                $this->locationService->getLocationChildCount( $location )
             ),
-            $this->locationService->getLocationChildCount( $location )
+            $request->headers->has( 'X-User-Hash' ) ? $request->headers->get( 'X-User-Hash' ) : null
         );
     }
 
     /**
      * Deletes a location
      *
-     * @param $locationPath
+     * @param string $locationPath
      *
      * @return \eZ\Publish\Core\REST\Server\Values\NoContent
      */
@@ -162,7 +171,7 @@ class Location extends RestController
     /**
      * Copies a subtree to a new destination
      *
-     * @param $locationPath
+     * @param string $locationPath
      *
      * @return \eZ\Publish\Core\REST\Server\Values\ResourceCreated
      */
@@ -196,7 +205,7 @@ class Location extends RestController
     /**
      * Moves a subtree to a new location
      *
-     * @param $locationPath
+     * @param string $locationPath
      *
      * @throws \eZ\Publish\Core\REST\Server\Exceptions\BadRequestException if the Destination header cannot be parsed as location or trash
      * @return \eZ\Publish\Core\REST\Server\Values\ResourceCreated
@@ -262,7 +271,7 @@ class Location extends RestController
     /**
      * Swaps a location with another one
      *
-     * @param $locationPath
+     * @param string $locationPath
      *
      * @return \eZ\Publish\Core\REST\Server\Values\NoContent
      */
@@ -309,45 +318,50 @@ class Location extends RestController
     /**
      * Loads all locations for content object
      *
-     * @param $contentId
+     * @param mixed $contentId
+     * @param \Symfony\Component\HttpFoundation\Request $request
      *
      * @return \eZ\Publish\Core\REST\Server\Values\LocationList
      */
-    public function loadLocationsForContent( $contentId )
+    public function loadLocationsForContent( $contentId, Request $request )
     {
         $restLocations = array();
-        foreach (
-            $this->locationService->loadLocations(
-                $this->contentService->loadContentInfo( $contentId )
-            ) as $location
-        )
+        $contentInfo = $this->contentService->loadContentInfo( $contentId );
+        foreach ( $this->locationService->loadLocations( $contentInfo ) as $location )
         {
             $restLocations[] = new Values\RestLocation(
                 $location,
+                // @todo Remove, and make optional in VO. Not needed for a location list.
                 $this->locationService->getLocationChildCount( $location )
             );
         }
 
-        return new Values\LocationList( $restLocations, $this->request->getPathInfo() );
+        return new Values\LocationCachedValue(
+            $contentInfo->mainLocationId,
+            new Values\LocationList( $restLocations, $this->request->getPathInfo() ),
+            $request->headers->has( 'X-User-Hash' ) ? $request->headers->get( 'X-User-Hash' ) : null
+        );
     }
 
     /**
      * Loads child locations of a location
      *
-     * @param $locationPath
+     * @param string $locationPath
+     * @param \Symfony\Component\HttpFoundation\Request $request
      *
      * @return \eZ\Publish\Core\REST\Server\Values\LocationList
      */
-    public function loadLocationChildren( $locationPath )
+    public function loadLocationChildren( $locationPath, Request $request )
     {
         $offset = $this->request->query->has( 'offset' ) ? (int)$this->request->query->get( 'offset' ) : 0;
         $limit = $this->request->query->has( 'limit' ) ? (int)$this->request->query->get( 'limit' ) : -1;
 
         $restLocations = array();
+        $locationId = $this->extractLocationIdFromPath( $locationPath );
         foreach (
             $this->locationService->loadLocationChildren(
                 $this->locationService->loadLocation(
-                    $this->extractLocationIdFromPath( $locationPath )
+                    $locationId
                 ),
                 $offset >= 0 ? $offset : 0,
                 $limit >= 0 ? $limit : -1
@@ -360,7 +374,11 @@ class Location extends RestController
             );
         }
 
-        return new Values\LocationList( $restLocations, $this->request->getPathInfo() );
+        return new Values\LocationCachedValue(
+            $locationId,
+            new Values\LocationList( $restLocations, $this->request->getPathInfo() ),
+            $request->headers->has( 'X-User-Hash' ) ? $request->headers->get( 'X-User-Hash' ) : null
+        );
     }
 
     /**
@@ -379,7 +397,7 @@ class Location extends RestController
     /**
      * Updates a location
      *
-     * @param $locationPath
+     * @param string $locationPath
      *
      * @return \eZ\Publish\Core\REST\Server\Values\RestLocation
      */
