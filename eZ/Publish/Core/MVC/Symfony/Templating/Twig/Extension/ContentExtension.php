@@ -81,6 +81,20 @@ class ContentExtension extends Twig_Extension
     protected $xmlTextConverter;
 
     /**
+     * Converter used to transform RichText content to HTML5 for rendering purposes
+     *
+     * @var \eZ\Publish\Core\FieldType\RichText\Converter\Xslt
+     */
+    protected $richTextConverter;
+
+    /**
+     * Converter used to transform RichText content to HTML5 for editing purposes
+     *
+     * @var \eZ\Publish\Core\FieldType\RichText\Converter\Xslt
+     */
+    protected $richTextEditConverter;
+
+    /**
      * Hash of field type identifiers (i.e. "ezstring"), indexed by field definition identifier
      *
      * @var array
@@ -191,6 +205,16 @@ class ContentExtension extends Twig_Extension
             new Twig_SimpleFilter(
                 'xmltext_to_html5',
                 array( $this, 'xmlTextToHtml5' ),
+                array( 'is_safe' => array( 'html' ) )
+            ),
+            new Twig_SimpleFilter(
+                'richtext_to_html5',
+                array( $this, 'richTextToHtml5' ),
+                array( 'is_safe' => array( 'html' ) )
+            ),
+            new Twig_SimpleFilter(
+                'richtext_to_html5_edit',
+                array( $this, 'richTextToHtml5Edit' ),
                 array( 'is_safe' => array( 'html' ) )
             )
         );
@@ -356,6 +380,52 @@ class ContentExtension extends Twig_Extension
     public function xmltextToHtml5( $xmlData )
     {
         return $this->getXmlTextConverter()->convert( $xmlData );
+    }
+
+    /**
+     * @return \eZ\Publish\Core\FieldType\RichText\Converter\Xslt
+     */
+    protected function getRichTextConverter()
+    {
+        if ( !isset( $this->xmlTextEditConverter ) )
+            $this->richTextConverter = $this->container->get( "ezpublish.fieldType.ezxmltext.converter.output.xhtml5" );
+
+        return $this->richTextConverter;
+    }
+
+    /**
+     * Implements the "richtext_to_html5_edit" filter
+     *
+     * @param \DOMDocument $xmlData
+     *
+     * @return string
+     */
+    public function richTextToHtml5( $xmlData )
+    {
+        return $this->getRichTextConverter()->convert( $xmlData )->saveHTML();
+    }
+
+    /**
+     * @return \eZ\Publish\Core\FieldType\RichText\Converter\Xslt
+     */
+    protected function getRichTextEditConverter()
+    {
+        if ( !isset( $this->xmlTextEditConverter ) )
+            $this->richTextEditConverter = $this->container->get( "ezpublish.fieldType.ezxmltext.converter.edit.xhtml5" );
+
+        return $this->richTextEditConverter;
+    }
+
+    /**
+     * Implements the "richtext_to_html5_edit" filter
+     *
+     * @param \DOMDocument $xmlData
+     *
+     * @return string
+     */
+    public function richTextToHtml5Edit( $xmlData )
+    {
+        return $this->getRichTextEditConverter()->convert( $xmlData )->saveHTML();
     }
 
     /**

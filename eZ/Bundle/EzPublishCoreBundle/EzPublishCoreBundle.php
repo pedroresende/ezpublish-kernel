@@ -22,6 +22,7 @@ use eZ\Bundle\EzPublishCoreBundle\DependencyInjection\Compiler\LocationViewPass;
 use eZ\Bundle\EzPublishCoreBundle\DependencyInjection\Compiler\BlockViewPass;
 use eZ\Bundle\EzPublishCoreBundle\DependencyInjection\Compiler\SignalSlotPass;
 use eZ\Bundle\EzPublishCoreBundle\DependencyInjection\Compiler\XmlTextConverterPass;
+use eZ\Bundle\EzPublishCoreBundle\DependencyInjection\Compiler\RichTextHtml5OutputConverterPass;
 use eZ\Bundle\EzPublishCoreBundle\DependencyInjection\EzPublishCoreExtension;
 use eZ\Bundle\EzPublishCoreBundle\DependencyInjection\Configuration\Parser as ConfigParser;
 use eZ\Bundle\EzPublishCoreBundle\DependencyInjection\Security\Factory as EzPublishSecurityFactory;
@@ -47,6 +48,7 @@ class EzPublishCoreBundle extends Bundle
         $container->addCompilerPass( new SignalSlotPass );
         $container->addCompilerPass( new IdentityDefinerPass );
         $container->addCompilerPass( new XmlTextConverterPass );
+        $container->addCompilerPass( new RichTextHtml5OutputConverterPass );
 
         $securityExtension = $container->getExtension( 'security' );
         $securityExtension->addSecurityListenerFactory( new EzPublishSecurityFactory );
