@@ -29,7 +29,6 @@ parameters:
     ezpublish.fieldType.ezurl.externalStorage.class: eZ\Publish\Core\FieldType\Url\UrlStorage
     ezpublish.fieldType.ezrichtext.class: eZ\Publish\Core\FieldType\RichText\Type
     ezpublish.fieldType.ezrichtext.externalStorage.class: eZ\Publish\Core\FieldType\RichText\RichTextStorage
-    ezpublish.fieldType.ezrichtext.converter.ezLinkToHtml5.class: eZ\Publish\Core\FieldType\XmlText\Converter\EzLinkToHtml5
     ezpublish.fieldType.ezxmltext.class: eZ\Publish\Core\FieldType\XmlText\Type
     ezpublish.fieldType.ezxmltext.externalStorage.class: eZ\Publish\Core\FieldType\XmlText\XmlTextStorage
     ezpublish.fieldType.ezxmltext.converter.html5.class: eZ\Bundle\EzPublishCoreBundle\FieldType\XmlText\Converter\Html5
@@ -312,6 +311,7 @@ parameters:
     ezpublish.fieldType.ezrichtext.converter.input.ezxml.resources: %kernel.root_dir%/../vendor/ezsystems/ezpublish-kernel/eZ/Publish/Core/Persistence/Legacy/Content/FieldValue/Converter/RichText/Resources/stylesheets/ezxml_docbook.xsl
     ezpublish.fieldType.ezrichtext.converter.input.xhtml5.resources: %kernel.root_dir%/../vendor/ezsystems/ezpublish-kernel/eZ/Publish/Core/FieldType/RichText/Resources/stylesheets/xhtml5/docbook.xsl
     ezpublish.fieldType.ezrichtext.converter.output.xhtml5.resources: %kernel.root_dir%/../vendor/ezsystems/ezpublish-kernel/eZ/Publish/Core/FieldType/RichText/Resources/stylesheets/docbook/xhtml5/fragment.xsl
+    ezpublish.fieldType.ezrichtext.converter.ezLinkToHtml5.class: eZ\Publish\Core\FieldType\RichText\Converter\EzLinkToHtml5
 
     ezpublish.fieldType.ezrichtext.inputConverterDispatcher.class: eZ\Publish\Core\FieldType\RichText\ConverterDispatcher
 
@@ -319,7 +319,7 @@ parameters:
     ezpublish.fieldType.ezrichtext.validator.xsd_validator.docbook.resources: %kernel.root_dir%/../vendor/ezsystems/ezpublish-kernel/eZ/Publish/Core/FieldType/RichText/Resources/schemas/docbook/ezpublish.rng
     ezpublish.fieldType.ezrichtext.validator.xsd_validator.ezxhtml5.resources: %kernel.root_dir%/../vendor/ezsystems/ezpublish-kernel/eZ/Publish/Core/FieldType/RichText/Resources/schemas/ezxhtml5/ezxhtml5.xsd
 
-    ezpublish.fieldType.ezrichtext.validator_dispatcher.class: eZ\Publish\Core\FieldType\XmlText\ValidatorDispatcher
+    ezpublish.fieldType.ezrichtext.validator_dispatcher.class: eZ\Publish\Core\FieldType\RichText\ValidatorDispatcher
 
 services:
     ezpublish.fieldType.ezrichtext.converter.input.ezxml:
@@ -587,6 +587,9 @@ services:
     ezpublish.fieldType.ezrichtext:
         class: %ezpublish.fieldType.ezrichtext.class%
         parent: ezpublish.fieldType
+        arguments:
+            - @ezpublish.fieldType.ezrichtext.inputConverterDispatcher
+            - @ezpublish.fieldType.ezrichtext.validator_dispatcher
         tags:
             - {name: ezpublish.fieldType, alias: ezrichtext}
 
