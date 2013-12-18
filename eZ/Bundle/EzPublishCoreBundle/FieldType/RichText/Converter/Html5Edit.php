@@ -19,7 +19,7 @@ class Html5Edit extends XsltConverter
 {
     public function __construct( $stylesheet, ConfigResolverInterface $configResolver )
     {
-        $customStylesheets = $configResolver->getParameter( 'fieldtypes.ezxml.edit_custom_xsl' );
+        $customStylesheets = $configResolver->getParameter( 'fieldtypes.ezrichtext.edit_custom_xsl' );
         $customStylesheets = $customStylesheets ?: array();
         parent::__construct( $stylesheet, $customStylesheets );
     }
