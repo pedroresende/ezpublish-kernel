@@ -29,6 +29,7 @@ parameters:
     ezpublish.fieldType.ezurl.externalStorage.class: eZ\Publish\Core\FieldType\Url\UrlStorage
     ezpublish.fieldType.ezrichtext.class: eZ\Publish\Core\FieldType\RichText\Type
     ezpublish.fieldType.ezrichtext.externalStorage.class: eZ\Publish\Core\FieldType\RichText\RichTextStorage
+    ezpublish.fieldType.ezrichtext.converter.ezLinkToHtml5.class: eZ\Publish\Core\FieldType\XmlText\Converter\EzLinkToHtml5
     ezpublish.fieldType.ezxmltext.class: eZ\Publish\Core\FieldType\XmlText\Type
     ezpublish.fieldType.ezxmltext.externalStorage.class: eZ\Publish\Core\FieldType\XmlText\XmlTextStorage
     ezpublish.fieldType.ezxmltext.converter.html5.class: eZ\Bundle\EzPublishCoreBundle\FieldType\XmlText\Converter\Html5
