@@ -387,8 +387,12 @@ class ContentExtension extends Twig_Extension
      */
     protected function getRichTextConverter()
     {
-        if ( !isset( $this->xmlTextEditConverter ) )
-            $this->richTextConverter = $this->container->get( "ezpublish.fieldType.ezxmltext.converter.output.xhtml5" );
+        if ( !isset( $this->richTextConverter ) )
+        {
+            $this->richTextConverter = $this->container->get(
+                "ezpublish.fieldType.ezrichtext.converter.output.xhtml5"
+            );
+        }
 
         return $this->richTextConverter;
     }
@@ -410,8 +414,12 @@ class ContentExtension extends Twig_Extension
      */
     protected function getRichTextEditConverter()
     {
-        if ( !isset( $this->xmlTextEditConverter ) )
-            $this->richTextEditConverter = $this->container->get( "ezpublish.fieldType.ezxmltext.converter.edit.xhtml5" );
+        if ( !isset( $this->richTextEditConverter ) )
+        {
+            $this->richTextEditConverter = $this->container->get(
+                "ezpublish.fieldType.ezrichtext.converter.edit.xhtml5"
+            );
+        }
 
         return $this->richTextEditConverter;
     }
