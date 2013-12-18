@@ -137,7 +137,7 @@ EOT;
         $defaultValue->loadXML( static::EMPTY_VALUE );
         $xmlString = $this->fromStorageConverter->convert( $defaultValue );
         $defaultValue->loadXML( $xmlString );
-        $fieldDefinition->defaultValue->data = $defaultValue;
+        //$fieldDefinition->defaultValue->data = $defaultValue;
     }
 
     /**
