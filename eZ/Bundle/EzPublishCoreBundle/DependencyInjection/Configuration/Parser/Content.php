@@ -194,7 +194,7 @@ class Content extends AbstractParser
                     $settings['fieldtypes.ezrichtext.edit_custom_xsl'] = $settings['fieldtypes']['ezrichtext']['edit_custom_tags'];
                     unset( $settings['fieldtypes']['ezrichtext']['edit_custom_tags'] );
                 }
-                if ( isset( $settings['fieldtypes']['ezxml']['input_custom_tags'] ) )
+                if ( isset( $settings['fieldtypes']['ezrichtext']['input_custom_tags'] ) )
                 {
                     $settings['fieldtypes.ezrichtext.input_custom_xsl'] = $settings['fieldtypes']['ezrichtext']['input_custom_tags'];
                     unset( $settings['fieldtypes']['ezrichtext']['input_custom_tags'] );
