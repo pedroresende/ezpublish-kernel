@@ -14,7 +14,7 @@
     <div style="margin:5px 0;">
         <form method="post" action="somepage">
             <textarea name="content" style="width:100%; height:350px;">
-                {{ content.fields.test["eng-GB"].xml|xmltext_to_html5_edit }}
+                {{ content.fields.test["eng-GB"].xml|richtext_to_html5_edit }}
             </textarea>
         </form>
     </div>
@@ -22,9 +22,9 @@
         <button id="save">Save</button>
     </div>
     <h3>Render</h3>
-    <div style="border:1px solid red; padding:10px">{{ content.fields.test["eng-GB"].xml|xmltext_to_html5|raw }}</div>
+    <div style="border:1px solid red; padding:10px">{{ content.fields.test["eng-GB"].xml|richtext_to_html5 }}</div>
     <h3>Source</h3>
-    <pre style="margin:5px 0;">{{ content.fields.test["eng-GB"].xml|xmltext_to_html5 }}</pre>
+    <pre style="margin:5px 0;">{{ content.fields.test["eng-GB"].xml|richtext_to_html5|raw }}</pre>
     <script>
         {% raw %}
         function addslashes( str ) {
