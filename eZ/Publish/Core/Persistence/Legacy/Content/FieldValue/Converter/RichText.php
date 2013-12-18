@@ -9,55 +9,26 @@
 
 namespace eZ\Publish\Core\Persistence\Legacy\Content\FieldValue\Converter;
 
-use eZ\Publish\Core\Persistence\Legacy\Content\FieldValue\Converter\RichText\XsltConverter;
-use eZ\Publish\Core\Persistence\Legacy\Content\FieldValue\Converter\RichText\XsdValidator;
 use eZ\Publish\Core\Persistence\Legacy\Content\FieldValue\Converter;
 use eZ\Publish\Core\Persistence\Legacy\Content\StorageFieldValue;
 use eZ\Publish\SPI\Persistence\Content\FieldValue;
 use eZ\Publish\SPI\Persistence\Content\Type\FieldDefinition;
 use eZ\Publish\Core\Persistence\Legacy\Content\StorageFieldDefinition;
 use eZ\Publish\Core\FieldType\FieldSettings;
-use DOMDocument;
+use eZ\Publish\Core\FieldType\RichText\Value;
 
 class RichText implements Converter
 {
     /**
-     * ezxml empty value, needed for conversion to Docbook
+     * Factory for current class
+     *
+     * @note Class should instead be configured as service if it gains dependencies.
+     *
+     * @return \eZ\Publish\Core\Persistence\Legacy\Content\FieldValue\Converter\RichText
      */
-    const EMPTY_VALUE = <<<EOT
-<?xml version="1.0" encoding="utf-8"?>
-<section xmlns:xhtml="http://ez.no/namespaces/ezpublish3/xhtml/" xmlns:image="http://ez.no/namespaces/ezpublish3/image/" xmlns:custom="http://ez.no/namespaces/ezpublish3/custom/"/>
-EOT;
-
-    /**
-     * @var \eZ\Publish\Core\Persistence\Legacy\Content\FieldValue\Converter\RichText\XsltConverter
-     */
-    protected $toStorageConverter;
-
-    /**
-     * @var \eZ\Publish\Core\Persistence\Legacy\Content\FieldValue\Converter\RichText\XsltConverter
-     */
-    protected $fromStorageConverter;
-
-    /**
-     * @var \eZ\Publish\Core\Persistence\Legacy\Content\FieldValue\Converter\RichText\XsdValidator
-     */
-    protected $ezxmlValidator;
-
-    /**
-     * @param \eZ\Publish\Core\Persistence\Legacy\Content\FieldValue\Converter\RichText\XsltConverter $toStorageConverter
-     * @param \eZ\Publish\Core\Persistence\Legacy\Content\FieldValue\Converter\RichText\XsltConverter $fromStorageConverter
-     * @param \eZ\Publish\Core\Persistence\Legacy\Content\FieldValue\Converter\RichText\XsdValidator $ezxmlValidator
-     */
-    public function __construct(
-        XsltConverter $toStorageConverter,
-        XsltConverter $fromStorageConverter,
-        XsdValidator $ezxmlValidator
-    )
+    public static function create()
     {
-        $this->toStorageConverter = $toStorageConverter;
-        $this->fromStorageConverter = $fromStorageConverter;
-        $this->ezxmlValidator = $ezxmlValidator;
+        return new self;
     }
 
     /**
@@ -68,20 +39,7 @@ EOT;
      */
     public function toStorageValue( FieldValue $value, StorageFieldValue $storageFieldValue )
     {
-        $document = new DOMDocument;
-        $document->loadXML( $value->data );
-        $ezxml = $this->toStorageConverter->convert( $document );
-
-        $document = new DOMDocument;
-        $document->loadXML( $ezxml );
-        $errors = $this->ezxmlValidator->validate( $document );
-
-        if ( !empty( $errors ) )
-        {
-            throw new \RuntimeException( "Validation of XML content failed: " . join( "\n", $errors ) );
-        }
-
-        $storageFieldValue->dataText = $ezxml;
+        $storageFieldValue->dataText = $value->data;
     }
 
     /**
@@ -92,19 +50,7 @@ EOT;
      */
     public function toFieldValue( StorageFieldValue $value, FieldValue $fieldValue )
     {
-        $document = new DOMDocument;
-        $document->loadXML( $value->dataText ?: static::EMPTY_VALUE );
-
-        $errors = $this->ezxmlValidator->validate( $document );
-
-        if ( !empty( $errors ) )
-        {
-            throw new \RuntimeException( "Validation of XML content failed: " . join( "\n", $errors ) );
-        }
-
-        $xmlString = $this->fromStorageConverter->convert( $document );
-
-        $fieldValue->data = $xmlString;
+        $fieldValue->data = $value->dataText ?: Value::EMPTY_VALUE;
     }
 
     /**
@@ -134,11 +80,7 @@ EOT;
             )
         );
 
-        $defaultValue = new DOMDocument;
-        $defaultValue->loadXML( static::EMPTY_VALUE );
-        $xmlString = $this->fromStorageConverter->convert( $defaultValue );
-
-        $fieldDefinition->defaultValue->data = $xmlString;
+        $fieldDefinition->defaultValue->data = Value::EMPTY_VALUE;
     }
 
     /**

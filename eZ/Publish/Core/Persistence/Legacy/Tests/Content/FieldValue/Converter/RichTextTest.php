@@ -13,7 +13,6 @@ use eZ\Publish\SPI\Persistence\Content\FieldValue;
 use eZ\Publish\Core\Persistence\Legacy\Content\StorageFieldValue;
 use eZ\Publish\Core\Persistence\Legacy\Content\FieldValue\Converter\RichText as RichTextConverter;
 use PHPUnit_Framework_TestCase;
-use DOMDocument;
 
 /**
  * Test case for RichText converter in Legacy storage
@@ -31,35 +30,12 @@ class RichTextTest extends PHPUnit_Framework_TestCase
     /**
      * @var string
      */
-    private $ezxmlString;
-
-    /**
-     * @var string
-     */
     private $docbookString;
 
     protected function setUp()
     {
         parent::setUp();
-        $this->converter = new RichTextConverter(
-            new RichTextConverter\XsltConverter(
-                $this->getAbsolutePath( "eZ/Publish/Core/Persistence/Legacy/Content/FieldValue/Converter/RichText/Resources/stylesheets/docbook_ezxml.xsl" )
-            ),
-            new RichTextConverter\XsltConverter(
-                $this->getAbsolutePath( "eZ/Publish/Core/Persistence/Legacy/Content/FieldValue/Converter/RichText/Resources/stylesheets/ezxml_docbook.xsl" )
-            ),
-            new RichTextConverter\XsdValidator(
-                $this->getAbsolutePath( "eZ/Publish/Core/Persistence/Legacy/Content/FieldValue/Converter/RichText/Resources/schemas/ezxml.xsd" )
-            )
-        );
-        $this->ezxmlString = <<<EOT
-<?xml version="1.0" encoding="UTF-8"?>
-<section xmlns:xhtml="http://ez.no/namespaces/ezpublish3/xhtml/" xmlns:image="http://ez.no/namespaces/ezpublish3/image/" xmlns:custom="http://ez.no/namespaces/ezpublish3/custom/">
-  <header>This is a heading.</header>
-  <paragraph>This is a paragraph.</paragraph>
-</section>
-
-EOT;
+        $this->converter = new RichTextConverter();
         $this->docbookString = <<<EOT
 <?xml version="1.0" encoding="UTF-8"?>
 <section xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ezxhtml="http://ez.no/xmlns/ezpublish/docbook/xhtml" xmlns:ezcustom="http://ez.no/xmlns/ezpublish/docbook/custom" version="5.0-variant ezpublish-1.0">
@@ -86,7 +62,7 @@ EOT;
         $storageFieldValue = new StorageFieldValue;
 
         $this->converter->toStorageValue( $value, $storageFieldValue );
-        self::assertSame( $this->ezxmlString, $storageFieldValue->dataText );
+        self::assertSame( $this->docbookString, $storageFieldValue->dataText );
     }
 
     /**
@@ -95,7 +71,7 @@ EOT;
     public function testToFieldValue()
     {
         $storageFieldValue = new StorageFieldValue;
-        $storageFieldValue->dataText = $this->ezxmlString;
+        $storageFieldValue->dataText = $this->docbookString;
         $fieldValue = new FieldValue;
 
         $this->converter->toFieldValue( $storageFieldValue, $fieldValue );
