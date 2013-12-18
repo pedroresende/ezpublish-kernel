@@ -215,7 +215,7 @@ services:
     ezpublish_rest.csrf_listener:
         class: %ezpublish_rest.csrf_listener.class%
         arguments:
-            - @form.csrf_provider
+            - @?form.csrf_provider
             - @event_dispatcher
             - %form.type_extension.csrf.enabled%
             - %ezpublish_rest.csrf_token_intention%

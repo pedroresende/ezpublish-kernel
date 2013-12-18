@@ -53,7 +53,7 @@ class CsrfListener implements EventSubscriberInterface
      * @param string $csrfTokenIntention
      */
     public function __construct(
-        CsrfProviderInterface $csrfProvider,
+        CsrfProviderInterface $csrfProvider = null,
         EventDispatcherInterface $eventDispatcher,
         $csrfEnabled,
         $csrfTokenIntention )
