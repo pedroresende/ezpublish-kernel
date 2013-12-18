@@ -68,7 +68,9 @@ EOT;
      */
     public function toStorageValue( FieldValue $value, StorageFieldValue $storageFieldValue )
     {
-        $ezxml = $this->toStorageConverter->convert( $value->data );
+        $document = new DOMDocument;
+        $document->loadXML( $value->data );
+        $ezxml = $this->toStorageConverter->convert( $document );
 
         $document = new DOMDocument;
         $document->loadXML( $ezxml );
@@ -101,9 +103,8 @@ EOT;
         }
 
         $xmlString = $this->fromStorageConverter->convert( $document );
-        $document->loadXML( $xmlString );
 
-        $fieldValue->data = $document;
+        $fieldValue->data = $xmlString;
     }
 
     /**
@@ -136,8 +137,8 @@ EOT;
         $defaultValue = new DOMDocument;
         $defaultValue->loadXML( static::EMPTY_VALUE );
         $xmlString = $this->fromStorageConverter->convert( $defaultValue );
-        $defaultValue->loadXML( $xmlString );
-        //$fieldDefinition->defaultValue->data = $defaultValue;
+
+        $fieldDefinition->defaultValue->data = $xmlString;
     }
 
     /**

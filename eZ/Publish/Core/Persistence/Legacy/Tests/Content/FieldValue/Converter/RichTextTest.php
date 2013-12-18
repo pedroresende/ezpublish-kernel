@@ -82,8 +82,7 @@ EOT;
     public function testToStorageValue()
     {
         $value = new FieldValue;
-        $value->data = new DOMDocument;
-        $value->data->loadXML( $this->docbookString );
+        $value->data = $this->docbookString;
         $storageFieldValue = new StorageFieldValue;
 
         $this->converter->toStorageValue( $value, $storageFieldValue );
@@ -100,7 +99,7 @@ EOT;
         $fieldValue = new FieldValue;
 
         $this->converter->toFieldValue( $storageFieldValue, $fieldValue );
-        self::assertSame( $this->docbookString, $fieldValue->data->saveXML() );
+        self::assertSame( $this->docbookString, $fieldValue->data );
     }
 
     /**

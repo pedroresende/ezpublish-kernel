@@ -32,17 +32,19 @@ EOT;
     /**
      * Initializes a new RichText Value object with $xmlDoc in
      *
-     * @param \DOMDocument $xmlDoc
+     * @param \DOMDocument|string $xml
      */
-    public function __construct( DOMDocument $xmlDoc = null )
+    public function __construct( $xml = null )
     {
-        if ( $xmlDoc === null )
+        if ( $xml instanceof DOMDocument )
         {
-            $xmlDoc = new DOMDocument;
-            $xmlDoc->loadXML( self::EMPTY_VALUE );
+            $this->xml = $xml;
         }
-
-        $this->xml = $xmlDoc;
+        else
+        {
+            $this->xml = new DOMDocument;
+            $this->xml->loadXML( $xml === null ? self::EMPTY_VALUE : $xml );
+        }
     }
 
     /**

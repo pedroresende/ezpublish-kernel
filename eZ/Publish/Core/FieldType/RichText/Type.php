@@ -295,7 +295,7 @@ class Type extends FieldType
 
     /**
      * Creates a new Value object from persistence data.
-     * $fieldValue->data is supposed to be a DOMDocument object.
+     * $fieldValue->data is supposed to be a string.
      *
      * @param \eZ\Publish\SPI\Persistence\Content\FieldValue $fieldValue
      *
@@ -315,7 +315,7 @@ class Type extends FieldType
     {
         return new FieldValue(
             array(
-                'data' => $value->xml,
+                'data' => $value->xml->saveXML(),
                 'externalData' => null,
                 'sortKey' => $this->getSortInfo( $value )
             )

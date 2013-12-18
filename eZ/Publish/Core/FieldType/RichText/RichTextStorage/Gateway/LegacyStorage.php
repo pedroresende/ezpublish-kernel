@@ -15,6 +15,7 @@ use eZ\Publish\SPI\Persistence\Content\VersionInfo;
 use eZ\Publish\SPI\Persistence\Content\Field;
 use eZ\Publish\Core\FieldType\Url\UrlStorage\Gateway\LegacyStorage as UrlStorage;
 use eZ\Publish\Core\Base\Exceptions\NotFoundException;
+use DOMDocument;
 use RuntimeException;
 
 class LegacyStorage extends Gateway
@@ -67,7 +68,10 @@ class LegacyStorage extends Gateway
      */
     public function getFieldData( Field $field )
     {
-        $xpath = new \DOMXPath( $field->value->data );
+        $document = new DOMDocument;
+        $document->loadXML( $field->value->data );
+
+        $xpath = new \DOMXPath( $document );
         $xpath->registerNamespace( "docbook", "http://docbook.org/ns/docbook" );
         $xpathExpression = "//docbook:link[starts-with( @xlink:href, 'ezurl://' )]";
 
@@ -116,6 +120,8 @@ class LegacyStorage extends Gateway
 
             $link->setAttribute( "xlink:href", $href );
         }
+
+        $field->value->data = $document->saveXML();
     }
 
     /**
@@ -161,7 +167,10 @@ class LegacyStorage extends Gateway
      */
     public function storeFieldData( VersionInfo $versionInfo, Field $field )
     {
-        $xpath = new \DOMXPath( $field->value->data );
+        $document = new DOMDocument;
+        $document->loadXML( $field->value->data );
+
+        $xpath = new \DOMXPath( $document );
         $xpath->registerNamespace( "docbook", "http://docbook.org/ns/docbook" );
         // This will select only links with non-empty 'xlink:href' attribute value
         $xpathExpression = "//docbook:link[string( @xlink:href ) and not( starts-with( @xlink:href, 'ezurl://' )" .
@@ -226,6 +235,8 @@ class LegacyStorage extends Gateway
 
             $link->setAttribute( "xlink:href", $href );
         }
+
+        $field->value->data = $document->saveXML();
 
         return true;
     }

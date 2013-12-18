@@ -445,44 +445,37 @@ EOT
 
     public function providerForTestIsEmptyValue()
     {
-        $doc = new DOMDocument;
-        $doc->loadXML(
-<<<EOT
+        $xml = <<<EOT
 <?xml version="1.0" encoding="UTF-8"?>
 <section xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ezxhtml="http://ez.no/xmlns/ezpublish/docbook/xhtml" xmlns:ezcustom="http://ez.no/xmlns/ezpublish/docbook/custom" version="5.0-variant ezpublish-1.0"/>
 EOT
-        );
-
+;
         return array(
             array( new RichTextValue ),
-            array( new RichTextValue( $doc ) ),
+            array( new RichTextValue( $xml ) ),
         );
     }
 
     public function providerForTestIsNotEmptyValue()
     {
-        $doc = new DOMDocument;
-        $doc->loadXML(
-<<<EOT
+        $xml = <<<EOT
 <?xml version="1.0" encoding="UTF-8"?>
 <section xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ezxhtml="http://ez.no/xmlns/ezpublish/docbook/xhtml" xmlns:ezcustom="http://ez.no/xmlns/ezpublish/docbook/custom" version="5.0-variant ezpublish-1.0"> </section>
 EOT
-        );
-        $doc2 = new DOMDocument;
-        $doc2->loadXML(
-<<<EOT
+;
+        $xml2 = <<<EOT
 <?xml version="1.0" encoding="UTF-8"?>
 <section xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ezxhtml="http://ez.no/xmlns/ezpublish/docbook/xhtml" xmlns:ezcustom="http://ez.no/xmlns/ezpublish/docbook/custom" version="5.0-variant ezpublish-1.0">
     <para/>
 </section>
 EOT
-        );
+;
         return array(
             array(
                 $this->getValidCreationFieldData()
             ),
-            array( new RichTextValue( $doc ) ),
-            array( new RichTextValue( $doc2 ) ),
+            array( new RichTextValue( $xml ) ),
+            array( new RichTextValue( $xml2 ) ),
         );
     }
 

@@ -212,8 +212,8 @@ class RichTextTest extends PHPUnit_Framework_TestCase
         $fieldType = $this->getFieldType();
         $fieldValue = $fieldType->toPersistenceValue( $fieldType->acceptValue( $xmlString ) );
 
-        self::assertInstanceOf( 'DOMDocument', $fieldValue->data );
-        self::assertSame( $xmlString, $fieldValue->data->saveXML() );
+        self::assertInternalType( 'string', $fieldValue->data );
+        self::assertSame( $xmlString, $fieldValue->data );
     }
 
     /**
@@ -222,9 +222,7 @@ class RichTextTest extends PHPUnit_Framework_TestCase
      */
     public function testGetName( $xmlString, $expectedName )
     {
-        $document = new DOMDocument;
-        $document->loadXML( $xmlString );
-        $value = new Value( $document );
+        $value = new Value( $xmlString );
 
         $fieldType = $this->getFieldType();
         $this->assertEquals(
