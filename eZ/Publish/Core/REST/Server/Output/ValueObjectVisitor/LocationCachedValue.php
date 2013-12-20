@@ -19,11 +19,6 @@ class LocationCachedValue extends CachedValue
 {
     protected $options = array();
 
-    public function __construct( array $options = array() )
-    {
-        parent::__construct( $options );
-    }
-
     /**
      * @param Visitor   $visitor
      * @param Generator $generator
