@@ -30,10 +30,9 @@ class CachedValue extends RestValue
      */
     public $userHash;
 
-    public function __construct( $value, $userHash, $ttl = null )
+    public function __construct( $value, $ttl = null )
     {
         $this->value = $value;
-        $this->userHash = $userHash;
         $this->ttl = $ttl;
     }
 }

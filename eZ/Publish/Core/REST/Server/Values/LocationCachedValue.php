@@ -16,9 +16,9 @@ class LocationCachedValue extends CachedValue
      */
     public $locationId;
 
-    public function __construct( $locationId, $value, $userHash, $ttl = null )
+    public function __construct( $locationId, $value, $ttl = null )
     {
-        parent::__construct( $value, $userHash, $ttl );
+        parent::__construct( $value, $ttl );
         $this->locationId = $locationId;
     }
 }

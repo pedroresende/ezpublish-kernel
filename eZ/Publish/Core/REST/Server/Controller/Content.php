@@ -100,8 +100,7 @@ class Content extends RestController
 
         return new Values\LocationCachedValue(
             $contentInfo->mainLocationId,
-            $restContent,
-            $request->headers->has( 'X-User-Hash' ) ? $request->headers->get( 'X-User-Hash' ) : null
+            $restContent
         );
     }
 
@@ -221,8 +220,7 @@ class Content extends RestController
 
         return new Values\LocationCachedValue(
             $content->contentInfo->mainLocationId,
-            $versionValue,
-            $request->headers->has( 'X-User-Hash' ) ? $request->headers->get( 'X-User-Hash' ) : null
+            $versionValue
         );
     }
 
@@ -353,8 +351,7 @@ class Content extends RestController
 
         return new Values\LocationCachedValue(
             $contentInfo->mainLocationId,
-            $versionList,
-            $request->headers->has( 'X-User-Hash' ) ? $request->headers->get( 'X-User-Hash' ) : null
+            $versionList
         );
     }
 
@@ -612,8 +609,7 @@ class Content extends RestController
 
         return new Values\LocationCachedValue(
             $contentInfo->mainLocationId,
-            $relationListValue,
-            $request->headers->has( 'X-User-Hash' ) ? $request->headers->get( 'X-User-Hash' ) : null
+            $relationListValue
         );
     }
 
@@ -648,8 +644,7 @@ class Content extends RestController
 
                 return new Values\LocationCachedValue(
                     $contentInfo->mainLocationId,
-                    new Values\LocationList( $relation, $this->request->getPathInfo() ),
-                    $request->headers->has( 'X-User-Hash' ) ? $request->headers->get( 'X-User-Hash' ) : null
+                    new Values\LocationList( $relation, $this->request->getPathInfo() )
                 );
             }
         }

@@ -1,0 +1,154 @@
+<?php
+/**
+ * File containing a test class
+ *
+ * @copyright Copyright (C) 1999-2013 eZ Systems AS. All rights reserved.
+ * @license http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ * @version //autogentag//
+ */
+
+namespace eZ\Publish\Core\REST\Server\Tests\Output\ValueObjectVisitor;
+
+use eZ\Publish\Core\REST\Common\Tests\Output\ValueObjectVisitorBaseTest;
+use eZ\Publish\Core\REST\Server\Output\ValueObjectVisitor;
+use eZ\Publish\Core\REST\Server\Exceptions;
+use eZ\Publish\Core\REST\Common;
+use eZ\Publish\Core\REST\Server\Values\CachedValue;
+use stdClass;
+use Symfony\Component\HttpFoundation\Request;
+
+class CachedValueTest extends ValueObjectVisitorBaseTest
+{
+    protected $options;
+
+    protected $defaultOptions = array(
+        'content.view_cache' => true,
+        'content.ttl_cache' => true,
+        'content.default_ttl' => 60
+    );
+
+    /**
+     * @var Request
+     */
+    protected $request;
+
+    public function setUp()
+    {
+        $this->request = new Request;
+        $this->request->headers->set( 'X-User-Hash', 'blabla' );
+    }
+
+    public function testVisit()
+    {
+        $responseMock = $this->getResponseMock();
+        $responseMock->expects( $this->once() )->method( 'setPublic' );
+        $responseMock->expects( $this->at( 1 ) )->method( 'setVary' )->with( 'Accept' );
+        $responseMock->expects( $this->once() )->method( 'setSharedMaxAge' )->with( $this->defaultOptions['content.default_ttl'] );
+        $responseMock->expects( $this->at( 3 ) )->method( 'setVary' )->with( 'X-User-Hash', false );
+
+        $result = $this->visit( new CachedValue( new stdClass ) );
+
+        self::assertNotNull( $result );
+    }
+
+    public function testVisitNoUserHash()
+    {
+        $this->request->headers->remove( 'X-User-Hash' );
+
+        $responseMock = $this->getResponseMock();
+        $responseMock->expects( $this->once() )->method( 'setPublic' );
+        // no Vary header on X-User-Hash
+        $responseMock->expects( $this->once() )->method( 'setVary' )->with( 'Accept' );
+        $responseMock->expects( $this->once() )->method( 'setSharedMaxAge' )->with( $this->defaultOptions['content.default_ttl'] );
+
+        $result = $this->visit( new CachedValue( new stdClass ) );
+
+        self::assertNotNull( $result );
+    }
+
+    public function testVisitNoRequest()
+    {
+        $this->request = null;
+
+        $responseMock = $this->getResponseMock();
+        $responseMock->expects( $this->once() )->method( 'setPublic' );
+        $responseMock->expects( $this->once() )->method( 'setVary' )->with( 'Accept' );
+        $responseMock->expects( $this->once() )->method( 'setSharedMaxAge' )->with( $this->defaultOptions['content.default_ttl'] );
+
+        $result = $this->visit( new CachedValue( new stdClass ) );
+
+        self::assertNotNull( $result );
+    }
+
+    public function testVisitCustomTTL()
+    {
+        $responseMock = $this->getResponseMock();
+        $responseMock->expects( $this->once() )->method( 'setPublic' );
+        $responseMock->expects( $this->at( 1 ) )->method( 'setVary' )->with( 'Accept' );
+        $responseMock->expects( $this->once() )->method( 'setSharedMaxAge' )->with( 30 );
+        $responseMock->expects( $this->at( 3 ) )->method( 'setVary' )->with( 'X-User-Hash', false );
+
+        $result = $this->visit( new CachedValue( new stdClass, 30 ) );
+
+        self::assertNotNull( $result );
+    }
+
+    public function testVisitViewCacheDisabled()
+    {
+        // disable caching globally
+        $this->options = array_merge( $this->defaultOptions, array( 'content.view_cache' => false ) );
+
+        $this->getResponseMock()->expects( $this->never() )->method( 'setPublic' );
+
+        $result = $this->visit( new CachedValue( new stdClass ) );
+
+        self::assertNotNull( $result );
+    }
+
+    public function testVisitCacheTTLCacheDisabled()
+    {
+        // disable caching globally
+        $this->options = array_merge( $this->defaultOptions, array( 'content.ttl_cache' => false ) );
+
+        $responseMock = $this->getResponseMock();
+        $responseMock->expects( $this->once() )->method( 'setPublic' );
+        $responseMock->expects( $this->once() )->method( 'setVary' )->with( 'Accept' );
+        $responseMock->expects( $this->never() )->method( 'setSharedMaxAge' );
+
+        $result = $this->visit( new CachedValue( new stdClass ) );
+
+        self::assertNotNull( $result );
+    }
+
+    protected function visit( $value )
+    {
+        $this->getVisitorMock()->expects( $this->once() )->method( 'visitValueObject' )->with( $value->value );
+
+        $visitor = $this->getVisitor();
+        $generator = $this->getGenerator();
+
+        $generator->startDocument( null );
+
+        $visitor->visit(
+            $this->getVisitorMock(),
+            $generator,
+            $value
+        );
+
+        return $generator->endDocument( null );
+    }
+
+    /**
+     * Must return an instance of the tested visitor object
+     *
+     * @return \eZ\Publish\Core\REST\Common\Output\ValueObjectVisitor
+     */
+    protected function internalGetVisitor()
+    {
+        $visitor = new ValueObjectVisitor\CachedValue(
+            $this->options ?: $this->defaultOptions
+        );
+        $visitor->setRequest( $this->request );
+        return $visitor;
+    }
+}

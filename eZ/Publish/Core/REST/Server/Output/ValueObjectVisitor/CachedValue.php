@@ -12,6 +12,7 @@ namespace eZ\Publish\Core\REST\Server\Output\ValueObjectVisitor;
 use eZ\Publish\Core\REST\Common\Output\ValueObjectVisitor;
 use eZ\Publish\Core\REST\Common\Output\Generator;
 use eZ\Publish\Core\REST\Common\Output\Visitor;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * CachedValue value object visitor
@@ -20,9 +21,16 @@ class CachedValue extends ValueObjectVisitor
 {
     protected $options = array();
 
+    protected $request;
+
     public function __construct( array $options = array() )
     {
         $this->options = $options;
+    }
+
+    public function setRequest( Request $request = null )
+    {
+        return $this->request = $request;
     }
 
     /**
@@ -39,15 +47,17 @@ class CachedValue extends ValueObjectVisitor
             return;
         }
 
-        $visitor->getResponse()->setPublic();
-        $visitor->getResponse()->setVary( 'Accept' );
+        $response = $visitor->getResponse();
+        $response->setPublic();
+        $response->setVary( 'Accept' );
 
-        if ( $data->ttl !== false && $this->options['content.ttl_cache'] === true )
+        if ( $this->options['content.ttl_cache'] === true )
         {
-            $visitor->getResponse()->setVary( 'X-User-Hash', false );
-            $visitor->getResponse()->setSharedMaxAge(
-                $data->ttl !== null ? $data->ttl : $this->options['content.default_ttl']
-            );
+            $response->setSharedMaxAge( $data->ttl ? : $this->options['content.default_ttl'] );
+            if ( isset( $this->request ) && $this->request->headers->has( 'X-User-Hash' ) )
+            {
+                $response->setVary( 'X-User-Hash', false );
+            }
         }
     }
 }

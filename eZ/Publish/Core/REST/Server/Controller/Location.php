@@ -146,8 +146,7 @@ class Location extends RestController
             new Values\RestLocation(
                 $location,
                 $this->locationService->getLocationChildCount( $location )
-            ),
-            $request->headers->has( 'X-User-Hash' ) ? $request->headers->get( 'X-User-Hash' ) : null
+            )
         );
     }
 
@@ -338,8 +337,7 @@ class Location extends RestController
 
         return new Values\LocationCachedValue(
             $contentInfo->mainLocationId,
-            new Values\LocationList( $restLocations, $this->request->getPathInfo() ),
-            $request->headers->has( 'X-User-Hash' ) ? $request->headers->get( 'X-User-Hash' ) : null
+            new Values\LocationList( $restLocations, $this->request->getPathInfo() )
         );
     }
 
@@ -376,8 +374,7 @@ class Location extends RestController
 
         return new Values\LocationCachedValue(
             $locationId,
-            new Values\LocationList( $restLocations, $this->request->getPathInfo() ),
-            $request->headers->has( 'X-User-Hash' ) ? $request->headers->get( 'X-User-Hash' ) : null
+            new Values\LocationList( $restLocations, $this->request->getPathInfo() )
         );
     }
 

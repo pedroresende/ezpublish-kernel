@@ -17,8 +17,6 @@ use eZ\Publish\Core\REST\Common\Output\Visitor;
  */
 class LocationCachedValue extends CachedValue
 {
-    protected $options = array();
-
     /**
      * @param Visitor   $visitor
      * @param Generator $generator
